@@ -1,0 +1,76 @@
+//定位全屏
+.full-cover {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+//定位全局居中
+.global-centre(@width, @height) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -@height/2;
+  margin-left: -@width/2;
+}
+
+//transform全局居中
+.transform-global-centre {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+//水平居中
+.horizontally {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+//垂直居中
+.vertical-centre {
+  position: absolute;
+  left: 50%;
+  transform: translateY(-50%);
+}
+
+//宽度、高度
+.width-and-height(@width, @height) {
+  width: @width;
+  height: @height;
+}
+
+//字体大小、颜色、行高
+.font-size-colour-line-height(@size, @colour, @line-height) {
+  font-size: @size;
+  color: @colour;
+  line-height: @line-height;
+}
+
+//背景图片
+.background-img(@url) {
+  background-image: url(@url);
+  //background-size: 100% 100%;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.form-container {
+  text-align: center;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 1);
+  overflow: hidden;
+}
+
+.main-form {
+  padding: 20px;
+  margin: 20px;
+}
+
+.title {
+  font-size: 28px;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+}
