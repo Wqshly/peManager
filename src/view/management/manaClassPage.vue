@@ -9,19 +9,31 @@
         @click="handleNew()"
         v-if="current_choose[2]!==0">新增成员</el-button>
       <br>
-      <el-button type="text" @click="export2Excel2()">下载当前班级数据</el-button>
+      <el-button
+        style="float:right;"
+        size="middle"
+        type="success"
+        @click="handleNew()"
+        >新增学生</el-button>
+      <el-button type="text" @click="handleDeleteSome()">删除选中项</el-button>
       <div style="display: inline-block;float:right;margin-right: 50px">
         <a href="javascript:" class="upload" >批量导入
           <input id= "file" type="file"  class="change"  @change="insert(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
         </a>
         <el-button type="text" @click="export1()">下载模板表格</el-button>
-
+        <el-button type="text" @click="export2Excel2()">下载当前班级数据</el-button>
       </div>
 
       <template>
         <el-table
+          @selection-change="handleSelectionChange"
           :data="handleData()"
           style="width: 100%">
+          <el-table-column
+            type="selection"
+            fixed="left"
+            width="55">
+          </el-table-column>
           <el-table-column
             prop='studentName'
             label="名字">
@@ -85,11 +97,26 @@
 
       <el-dialog title="编辑" width="fit-content" :visible.sync="dialogEditVisible">
         <div v-for="item in editDia">
-          {{item.key}}:{{item.value}}
+          {{item.key}}:
+          <el-input
+            v-model="item.value"
+            :disabled="!item.flag1">
+          </el-input>
+          <br>
         </div>
         <br>
-        <el-button @click="dialogEditTableVisible = false">取 消</el-button>
+        <el-button @click="dialogEditVisible = false">取 消</el-button>
         <el-button type="primary" @click="confirm_edit()">确 定</el-button>
+      </el-dialog>
+
+      <el-dialog title="新增同学" width="fit-content" :visible.sync="dialogEditVisible2">
+        姓名：
+        <el-input v-model="form_new.studentName">        </el-input>
+        学号:
+        <el-input v-model="form_new.studentNumber">        </el-input>
+        <br>
+        <el-button @click="dialogEditTableVisible2 = false">取 消</el-button>
+        <el-button type="primary" @click="confirm_new()">确 定</el-button>
       </el-dialog>
 
     </div>
@@ -109,7 +136,8 @@
             search: '',
             tableProp:'',
             dialogEditVisible:false,
-
+            dialogEditVisible2:false,
+            multipleSelection:[],
             /*数据预览*/
             dialogTableVisible:false,
             arr_temp_filename:'',
@@ -133,19 +161,63 @@
             }, ],
             tableData: [],
             editDia:[],
-
+            editUpload:{},
+            form_new:{
+              studentName:"",
+              studentNumber:0,
+            },
         }
     },
     methods: {
+        //多选
+        handleSelectionChange(val) {
+            this.multipleSelection = val;
+        },
+        /*批量按钮*/
+        handleDeleteSome(){
 
+            this.$confirm('确定删除？?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                let data = [];
+                for(let i in this.multipleSelection){
+                    data.push(this.multipleSelection[i].id);
+                }
+
+                this.delete(data);
+
+            }).catch(() => {
+
+            });
+        },
+        delete(data){
+            let url = '/api/user/deleteUser';
+            api.post_JSON(url,data).then(res => {
+                let _this = this;
+                if (res.code === 0) {
+                    _this.$message({
+                        message: '成功!请刷新页面',
+                        type: 'success'
+                    });
+
+                } else {
+                    _this.$message({
+                        message: res.msg,
+                        type: 'error'
+                    });
+                }
+            })
+        },
         //每页条数
         handleSizeChangeTemp(val) {
             this.pageSize_temp=val;
-            /*console.log(`每页 ${val} 条`);*/
+
         },
         //当前页数
         handleCurrentChangeTemp(val) {
-            /*console.log(`当前页: ${val}`);*/
+
         },
 
         //导入表格 显示到展示区
@@ -156,7 +228,29 @@
             this.dialogTableVisible=true;
             a.value='';
         },
+        uploadAPI(){
+            let data = {
+                sid:this.$route.query.sid,
+                cid:this.$route.query.cid,
+                ccid:this.$route.query.ccid,
+                filePath:this.arr_temp
+            };
+            api.post_JSON('/api/importFile/readExcel',data).then(res => {
+                let _this = this;
+                if (res.code === 0) {
+                    _this.$message({
+                        message: '成功!请刷新页面',
+                        type: 'success'
+                    });
 
+                } else {
+                    _this.$message({
+                        message: res.msg,
+                        type: 'error'
+                    });
+                }
+            })
+        },
         //导入表格确认
         confirm_import(){
             this.$confirm('将上传至服务器 ，是否继续?', '提示', {
@@ -164,22 +258,62 @@
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                console.log(this.arr_temp);
-                ///此处将修改数据库
-
+                this.uploadAPI();
                 this.dialogTableVisible=false;
-                this.$message({
-                    type: 'success',
-                    message: '成功!'
-                });
+
             }).catch(() => {
 
             });
         },
-
+        //新增确认
+        confirm_new(){
+            this.dialogEditVisible2 = false;
+            let url = "/api/student/addStudent";
+            let data =  {
+                shcoolId:this.$route.query.sid,
+                collegeId:this.$route.query.cid,
+                classesId:this.$route.query.ccid,
+                studentName:this.form_new.studentName,
+                studentNumber:this.form_new.studentNumber
+            };
+            api.post_JSON(url,data).then(res => {
+                let _this = this;
+                if (res.code === 0) {
+                    _this.$message({
+                        message: '成功!请刷新页面',
+                        type: 'success'
+                    });
+                } else {
+                    _this.$message({
+                        message: res.msg,
+                        type: 'error'
+                    });
+                }
+            })
+        },
         //编辑确认
         confirm_edit(){
+            this.dialogEditVisible = false;
+            for(let i in this.editDia){
+                this.editUpload[this.editDia[i].key] = this.editDia[i].value;
+            }
+            let url = '/api/student/updateStudent';
+            api.post_JSON(url,this.editUpload).then(res => {
 
+                let _this = this;
+                if (res.code === 0) {
+                    _this.$message({
+                        message: '成功',
+                        type: 'success'
+                    });
+
+                } else {
+                    _this.$message({
+                        message: res.msg,
+                        type: 'error'
+                    });
+                }
+            })
         },
         //excel导出API
         importf(obj) {
@@ -246,10 +380,6 @@
                 type: 'warning'
             }).then(() => {
                 this.export2Excel();
-                this.$message({
-                    type: 'success',
-                    message: '成功!'
-                });
             }).catch(() => {
 
             });
@@ -283,21 +413,27 @@
 
 
         handleNew() {
-
+            this.dialogEditVisible2 = true;
         },
 
         /*表格的操作*/
         handleClick(index, row) {
-            console.log(row);
 
         },
 
         handleEdit(index, row) {
             this.editDia = [];
+            this.editUpload = row;
+            let flag = true;
             for(let i in row){
+                flag = true;
+                if(i.toLowerCase().includes("id")){
+                    flag = false;
+                }
                 let temp = {
                     key:i,
                     value:row[i],
+                    flag1:flag
                 };
                 this.editDia.push(temp);
             }
@@ -310,10 +446,10 @@
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                console.log(index, row);
+
                 this.$message({
                     type: 'success',
-                    message: '成功!'
+                    message: '成功!请刷新页面'
                 });
             }).catch(() => {
 
@@ -335,16 +471,16 @@
         //每页大小
         handleSizeChange(val) {
             this.pageSize=val;
-            /*console.log(`每页 ${val} 条`);*/
+
         },
 
         //当前页数
         handleCurrentChange(val) {
-            /*console.log(`当前页: ${val}`);*/
+
         },
 
-        requestStudentList(){
-            const url = '/api/student/queryStudentInfoByClass/1/1/1';
+        requestStudentList(sid,cid,ccid){
+            const url = '/api/student/queryStudentInfoByClass/'+sid+'/'+cid+'/'+ccid;
             api.get(url).then(res => {
                 let _this = this;
                 if (res.code === 0) {
@@ -373,7 +509,7 @@
 
     },
     created() {
-        this.requestStudentList();
+        this.requestStudentList(this.$route.query.sid,this.$route.query.cid,this.$route.query.ccid);
     },
 }
 </script>

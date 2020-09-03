@@ -17,7 +17,7 @@
         @click="handleNew()"
         v-if="current_choose[crumb_flag-2]!==0">新建一个{{this.crumbs[this.crumb_flag-1].title}}</el-button>
       <br>
-
+      <el-button type="text" @click="handleDeleteSome()">删除选中项</el-button>
       <div style="display: inline-block;float:right;margin-right: 50px">
         <a href="javascript:" class="upload" >批量导入
           <input id= "file" type="file"  class="change"  @change="insert(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
@@ -28,8 +28,14 @@
 
       <template>
         <el-table
+          @selection-change="handleSelectionChange"
           :data="handleData()"
           style="width: 100%">
+          <el-table-column
+            type="selection"
+            fixed="left"
+            width="55">
+          </el-table-column>
           <el-table-column
             :prop=tableProp
             label="名字">
@@ -124,6 +130,7 @@
             search: '',
             tableProp:'',
             dialogEditVisible:false,
+            multipleSelection: [],
 
             /*数据预览*/
             dialogTableVisible:false,
@@ -214,13 +221,12 @@
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                console.log(this.arr_temp);
                 ///此处将修改数据库
 
                 this.dialogTableVisible=false;
                 this.$message({
                     type: 'success',
-                    message: '成功!'
+                    message: '成功!请刷新页面'
                 });
             }).catch(() => {
 
@@ -345,7 +351,7 @@
         uploadClass(className,schoolId,collegeId){
             let url = "/api/classes/addClasses";
             let data = {
-                shchoolId:schoolId,
+                schoolId:schoolId,
                 collegeId:collegeId,
                 className:className
             };
@@ -354,7 +360,7 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功',
+                        message: '成功!请刷新页面',
                         type: 'success'
                     });
 
@@ -381,7 +387,7 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功',
+                        message: '成功!请刷新页面',
                         type: 'success'
                     });
 
@@ -407,7 +413,7 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功',
+                        message: '成功!请刷新页面',
                         type: 'success'
                     });
 
@@ -464,7 +470,7 @@
                 this.current_choose[1] = row.id;
             }
             else if(this.crumb_flag === 3){
-                this.$router.push('/management/class');
+                this.$router.push('/management/class?sid='+this.current_choose[0]+'&cid='+this.current_choose[1]+'&ccid='+this.current_choose[2]);
             }
         },
 
@@ -492,18 +498,62 @@
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-
-                this.$message({
-                    type: 'success',
-                    message: '成功!'
-                });
+                let data = [];
+                data.push(row.id);
+                this.delete(data);
             }).catch(() => {
 
             });
-
+        },
+        //多选
+        handleSelectionChange(val) {
+            this.multipleSelection = val;
         },
 
+        /*批量按钮*/
+        handleDeleteSome(){
+            this.$confirm('确定删除？?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                let data = [];
+                for(let i in this.multipleSelection){
+                    data.push(this.multipleSelection[i].id);
+                }
+                this.delete(data);
 
+            }).catch(() => {
+
+            });
+        },
+        delete(data){
+            let url = '';
+            if(this.crumb_flag === 1){
+                url = '/api/school/deleteSchool'
+            }
+            else if(this.crumb_flag === 2){
+                url = '/api/college/deleteCollege'
+            }
+            else if(this.crumb_flag === 3){
+                url = '/api/classes/deleteClasses'
+            }
+            api.post_JSON(url,data).then(res => {
+                let _this = this;
+                if (res.code === 0) {
+                    _this.$message({
+                        message: '成功!请刷新页面',
+                        type: 'success'
+                    });
+
+                } else {
+                    _this.$message({
+                        message: res.msg,
+                        type: 'error'
+                    });
+                }
+            })
+        },
         /*切换表格数据*/
         shift_data(val){
             /*this.crumb_flag用来监视当前表格数据到底是什么*/
