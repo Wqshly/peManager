@@ -226,16 +226,16 @@
             this.arr_temp_filename = a.value;
             this.importf(obj);
             this.dialogTableVisible=true;
-            a.value='';
         },
         uploadAPI(){
-            let data = {
-                sid:this.$route.query.sid,
-                cid:this.$route.query.cid,
-                ccid:this.$route.query.ccid,
-                filePath:this.arr_temp
-            };
-            api.post_JSON('/api/importFile/readExcel',data).then(res => {
+            console.log(document.getElementById('file').files[0]);
+            let data = new FormData();
+            data.append('sId',this.$route.query.sid);
+            data.append('cId',this.$route.query.cid);
+            data.append('ccId',this.$route.query.ccid);
+            data.append('excelFile',document.getElementById('file').files[0]);
+            console.log(data);
+            api.upload('/api/importFile/readExcel',data).then(res => {
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
@@ -249,7 +249,8 @@
                         type: 'error'
                     });
                 }
-            })
+            });
+            this.dialogTableVisible=false;
         },
         //导入表格确认
         confirm_import(){
@@ -262,7 +263,7 @@
                 this.dialogTableVisible=false;
 
             }).catch(() => {
-
+                this.dialogTableVisible=false;
             });
         },
         //新增确认

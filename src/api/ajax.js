@@ -44,13 +44,9 @@ const api = {
     }
   },
   async upload(url, data) {
-    var fileObj = data;
-    var form = new FormData();
-    form.append(fileObj);
-    form.append("time", (new Date()).getTime());
 
     try {
-      let res = await axios.post(root+url, form,{
+      let res = await axios.post(root+url, data,{
         'Content-Type': 'multipart/form-data',
       });
       res = res.data;

@@ -213,7 +213,12 @@
             this.dialogTableVisible=true;
             a.value='';
         },
+        uploadFile(){
+            let data = {
 
+            };
+
+        },
         //导入表格确认
         confirm_import(){
             this.$confirm('将上传至服务器 ，是否继续?', '提示', {
@@ -222,7 +227,7 @@
                 type: 'warning'
             }).then(() => {
                 ///此处将修改数据库
-
+                this.uploadFile();
                 this.dialogTableVisible=false;
                 this.$message({
                     type: 'success',
