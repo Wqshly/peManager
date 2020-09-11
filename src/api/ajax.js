@@ -28,6 +28,21 @@ const api = {
       console.log('无法连接至服务器');
     }
   },
+  async post_JSON(url, data) {
+    try {
+      let headers = {
+        'Content-Type': 'application/json'
+      };
+      let res = await axios.post(root+url, data,headers);
+      res = res.data;
+      return new Promise((resolve, reject) => {
+        resolve(res)
+      })
+    } catch (err) {
+      alert('无法连接至服务器');
+      console.log('无法连接至服务器');
+    }
+  },
   async upload(url, data) {
     var fileObj = data;
     var form = new FormData();
