@@ -365,10 +365,10 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功!请刷新页面',
+                        message: '成功!',
                         type: 'success'
                     });
-
+                    _this.reloadTable();
                 } else {
                     _this.$message({
                         message: res.msg,
@@ -377,7 +377,17 @@
                 }
             })
         },
-
+        reloadTable(){
+            if(this.crumb_flag === 1){
+                this.requestSchoolList();
+            }
+            else if(this.crumb_flag === 2){
+                this.requestCollegeList(this.current_choose[0]);
+            }
+            else if(this.crumb_flag === 3){
+                this.requestClassList(this.current_choose[0],this.current_choose[1]);
+            }
+        },
         uploadSchool(schoolName){
             let url = "/api/school/addSchool";
             let data = {
@@ -392,10 +402,10 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功!请刷新页面',
+                        message: '成功!',
                         type: 'success'
                     });
-
+                    _this.reloadTable();
                 } else {
                     _this.$message({
                         message: res.msg,
@@ -418,10 +428,10 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功!请刷新页面',
+                        message: '成功!',
                         type: 'success'
                     });
-
+                    _this.reloadTable();
                 } else {
                     _this.$message({
                         message: res.msg,
@@ -547,10 +557,10 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功!请刷新页面',
+                        message: '成功!',
                         type: 'success'
                     });
-
+                    _this.reloadTable();
                 } else {
                     _this.$message({
                         message: res.msg,

@@ -198,10 +198,10 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功!请刷新页面',
+                        message: '成功!',
                         type: 'success'
                     });
-
+                    _this.reloadTable();
                 } else {
                     _this.$message({
                         message: res.msg,
@@ -239,10 +239,10 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功!请刷新页面',
+                        message: '成功!',
                         type: 'success'
                     });
-
+                    _this.reloadTable();
                 } else {
                     _this.$message({
                         message: res.msg,
@@ -281,9 +281,10 @@
                 let _this = this;
                 if (res.code === 0) {
                     _this.$message({
-                        message: '成功!请刷新页面',
+                        message: '成功!',
                         type: 'success'
                     });
+                    _this.reloadTable();
                 } else {
                     _this.$message({
                         message: res.msg,
@@ -412,7 +413,9 @@
         },
         //导出表格结束
 
-
+        reloadTable(){
+            this.requestStudentList(this.$route.query.sid,this.$route.query.cid,this.$route.query.ccid);
+        },
         handleNew() {
             this.dialogEditVisible2 = true;
         },
@@ -450,8 +453,9 @@
 
                 this.$message({
                     type: 'success',
-                    message: '成功!请刷新页面'
+                    message: '成功!'
                 });
+                this.reloadTable();
             }).catch(() => {
 
             });
@@ -510,7 +514,7 @@
 
     },
     created() {
-        this.requestStudentList(this.$route.query.sid,this.$route.query.cid,this.$route.query.ccid);
+        this.reloadTable();
     },
 }
 </script>
