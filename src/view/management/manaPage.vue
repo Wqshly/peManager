@@ -485,6 +485,7 @@
                 this.current_choose[1] = row.id;
             }
             else if(this.crumb_flag === 3){
+                this.current_choose[2] = row.id;
                 this.$router.push('/management/class?sid='+this.current_choose[0]+'&cid='+this.current_choose[1]+'&ccid='+this.current_choose[2]);
             }
         },
