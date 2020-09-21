@@ -20,7 +20,7 @@
       <el-button type="text" @click="handleDeleteSome()">删除选中项</el-button>
       <div style="display: inline-block;float:right;margin-right: 50px">
         <a href="javascript:" class="upload" >批量导入
-          <input id= "file" type="file"  class="change"  @change="insert(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
+          <input id= "file1" type="file"  class="change"  @change="insert(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
         </a>
         <el-button type="text" @click="export1()">下载模板表格</el-button>
 
@@ -206,18 +206,39 @@
 
         //导入表格 显示到展示区
         insert(obj){
-            var a = document.getElementById('file');
+            var a = document.getElementById('file1');
             this.arr_temp_filename = a.value;
 
             this.importf(obj);
             this.dialogTableVisible=true;
-            a.value='';
         },
         uploadFile(){
             let data = {
 
             };
 
+        },
+        uploadAPI(){
+            console.log(document.getElementById('file1').files[0]);
+            let data = new FormData();
+            data.append('excelFile',document.getElementById('file1').files[0]);
+            console.log(data);
+            api.upload('/api/importFile/ImportFileClass',data).then(res => {
+                let _this = this;
+                if (res.code === 0) {
+                    _this.$message({
+                        message: '成功!',
+                        type: 'success'
+                    });
+                    _this.reloadTable();
+                } else {
+                    _this.$message({
+                        message: res.msg,
+                        type: 'error'
+                    });
+                }
+            });
+            this.dialogTableVisible=false;
         },
         //导入表格确认
         confirm_import(){
@@ -227,12 +248,9 @@
                 type: 'warning'
             }).then(() => {
                 ///此处将修改数据库
-                this.uploadFile();
+                this.uploadAPI();
+
                 this.dialogTableVisible=false;
-                this.$message({
-                    type: 'success',
-                    message: '成功!请刷新页面'
-                });
             }).catch(() => {
 
             });
