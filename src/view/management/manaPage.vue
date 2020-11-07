@@ -18,7 +18,7 @@
         v-if="current_choose[crumb_flag-2]!==0">新建一个{{this.crumbs[this.crumb_flag-1].title}}</el-button>
       <br>
       <el-button type="text" @click="handleDeleteSome()">删除选中项</el-button>
-      <div style="display: inline-block;float:right;margin-right: 50px">
+      <div style="display: inline-block;float:right;margin-right: 50px" v-if="false">
         <a href="javascript:" class="upload" >批量导入
           <input id= "file1" type="file"  class="change"  @change="insert(this)" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"/>
         </a>
@@ -53,10 +53,6 @@
           </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="success"
-                @click="handleClick(scope.$index, scope.row)">选择</el-button>
               <el-button
                 size="mini"
                 @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -100,7 +96,7 @@
 
       <el-dialog title="编辑" width="fit-content" :visible.sync="dialogEditVisible">
         <div v-for="item in editDia">
-          {{item.key}}:
+          {{mappingKey(item.key)}}:
           <el-input
 
           v-model="item.value"
@@ -174,6 +170,7 @@
                     tableName:'data_school',
                     prop: 'schoolName'
                 },
+                /*
                 {
                     value:2,
                     title:'院系',
@@ -185,7 +182,7 @@
                     title:'班级',
                     tableName:'data_class',
                     prop: 'className'
-                },
+                },*/
             ],
             editDia:[],
             editUpload:{},
@@ -507,7 +504,30 @@
                 this.$router.push('/management/class?sid='+this.current_choose[0]+'&cid='+this.current_choose[1]+'&ccid='+this.current_choose[2]);
             }
         },
+        mappingKey(key){
+            switch(key)
+            {
+                case 'schoolName':
+                    return '学校名字';
+                case 'schoolAddress':
+                    return '学校地址';
+                case 'phone':
+                    return '联系电话';
+                case 'schoolZipCode':
+                    return '邮编';
+                case 'schoolIntroduction':
+                    return '学校简介';
+                case 'collegeName':
+                    return '院系名称';
+                case 'collegeInfo':
+                    return '院系简介';
+                case 'className':
+                    return '班级名称';
+                default:
+                    return key;
+            }
 
+        },
         handleEdit(index, row) {
             this.editDia = [];
             this.editUpload = row;

@@ -63,24 +63,21 @@ export default {
     },
     methods: {
       login (formName) {
+          let _this = this;
           this.$refs[formName].validate((valid) => {
-
             if (valid) {
               const url = '/api/login/login';
               api.post(url, this.loginForm).then(res => {
-                  console.log(res);
-                  let _this = this;
                   if (res.code === 0) {
-                      _this.$message({
-                          message: '登录成功 正在跳转.....',
-                          type: 'success'
-                      });
-                      _this.$router.push('/management')
+                      if(res.data.identity !== '网站管理员'){
+                          _this.$message.error('你不是网站管理员');
+                      } else {
+                          _this.$root.user = res.data;
+                          _this.$router.push('/management');
+                      }
+
                   } else {
-                      _this.$message({
-                      message: '账号或密码错误！请重试！',
-                      type: 'error'
-                    });
+                      _this.$message.error(res.msg);
                   }
               })
             }
