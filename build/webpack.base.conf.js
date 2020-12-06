@@ -20,16 +20,30 @@ const createLintingRule = () => ({
 })
 
 module.exports = {
+
+  externals: {
+    'vue': 'Vue',
+    'vue-router': 'VueRouter',
+    'vuex': 'Vuex',
+    'axios': 'axios',
+    'echarts': 'echarts',
+    'xlsx': 'xlsx',
+    "element-ui": "ELEMENT",
+    'less': 'less',
+    'particles': 'particles',
+  },
+
   context: path.resolve(__dirname, '../'),
   entry: {
     app: './src/main.js'
   },
   output: {
     path: config.build.assetsRoot,
-    filename: '[name].js',
+    filename: 'js/[hash][name].js',
     publicPath: process.env.NODE_ENV === 'production'
-      ? config.build.assetsPublicPath
-      : config.dev.assetsPublicPath
+      ? './' +config.build.assetsPublicPath
+      : './' + config.dev.assetsPublicPath,
+    chunkFilename:'js/[chunkhash]c[name].js'
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],

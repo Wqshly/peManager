@@ -1,49 +1,85 @@
 import Vue from 'vue'
 import App from './App'
+import store from './store'
 import router from './router'
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
+
+import VueLazyload from 'vue-lazyload'
 import icon from "./assets/icon/iconfont.js"
 
-Vue.use(ElementUI);
-Vue.config.productionTip = false;
-import {api}  from '@/api/ajax'
+Vue.use(router);
+Vue.use(VueLazyload);
 
-const vue = new Vue({
+import header from './components/header.vue'
+import footer from './components/footer.vue'
+import menu from './components/routerByMenu.vue'
+
+Vue.component('v-header', header);
+Vue.component('v-footer', footer);
+Vue.component('router-menu', menu);
+
+Vue.config.productionTip = false;
+
+
+new Vue({
   el: '#app',
-  data(){
-    return{
-      user: {
-        id: -1,
-        userNumber: "234",
-        username: "李四",
-        password: "123456",
-        age: 22,
-        sex: "男",
-        unit: "软件2班",
-        identity: "学生",
-        phone: "09876543211",
-        email: "1223qq.com",
-        schoolId: "山东科技大学"
-      }
-    };
-  },
+  store,
   router,
-  components: {App},
-  template: '<App/>',
-  watch: {
-    $route(to, from) {
-      if(this.$root.user.id === -1 && to.path !== '/login')
-      api.get('/api/login/LoginOrNot').then(res => {
-        if (res.code === 0) {
-          this.$root.user = res.data;
-        }
-        else{
-          this.$router.push('/login');
-        }
-      })
-    },
+  components: {
+    App,
   },
+  template: '<App></App>'
 });
 
 
+import {clone} from './api/clone.js'
+import {api} from './api/ajax'
+import {eventBus} from './api/bus'
+
+Vue.prototype.$clone = clone;
+Vue.prototype.$api = api;
+Vue.prototype.$eventBus = eventBus;
+
+if(store.state.user.id === -1) {
+  api.get('/api/login/LoginOrNot').then(res => {
+    if (res.code === 0) {
+      store.state.user = res.data;
+    }
+  });
+}
+
+router.beforeEach((to, from, next) => {
+  if (from.path === '/competition/create') {
+    Vue.prototype.$confirm('确认离开页面？')
+      .then(_ => {
+        next();
+      })
+      .catch(_ => {
+      });
+  }
+  //if中是需要执行（判断是不是已登录）的条件
+  else if (
+    store.state.user.id === -1
+    && to.path !== '/login'
+    && from.path !== '/login'
+    && to.path.split('/')[1] !== 'index'
+  ) {
+    api.get('/api/login/LoginOrNot').then(res => {
+      if (res.code === 0) {
+        store.state.user = res.data;
+        window.scrollTo(0, 0);
+        next();
+      } else {
+        next({
+          path: '/login',
+          query: {redirect: to.fullPath}
+        });
+      }
+    });
+  } else {
+    window.scrollTo(0, 0);
+    if (to.path !== from.path) {
+      next()
+    }
+  }
+
+});

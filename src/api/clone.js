@@ -1,9 +1,18 @@
 const clone = {
   deepClone(obj) {
-    const _obj = JSON.stringify(obj);
-    return JSON.parse(_obj);
+    return JSON.parse(JSON.stringify(obj));
   },
-
+  transObjectToList(obj) {
+    if(obj === null){
+      return [];
+    }
+    else if(obj.length === undefined){
+      return [obj];
+    }
+    else{
+      return obj;
+    }
+  }
 };
-export { clone}
+export { clone }
 

@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "18373481",
+      "name": "合作",
+      "font_class": "hezuo",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    },
+    {
       "icon_id": "15996282",
       "name": "展开",
       "font_class": "zhankai",
